@@ -1,6 +1,6 @@
-package scanr
-
 // +build darwin dragonfly freebsd netbsd openbsd
+
+package scanr
 
 import (
 	"golang.org/x/net/route"

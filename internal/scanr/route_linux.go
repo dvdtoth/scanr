@@ -1,6 +1,6 @@
-package scanr
-
 // +build linux
+
+package scanr
 
 import (
 	"github.com/google/gopacket/routing"

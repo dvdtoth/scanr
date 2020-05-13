@@ -6,8 +6,15 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"log"
+	"math/rand"
 	"net"
 	"time"
+)
+
+const (
+	// IANA ephemeral port range
+	min = 49152
+	max = 65535
 )
 
 // Scanr struct
@@ -55,8 +62,9 @@ func (s *Scanr) Close() {
 }
 
 // SYNscan ports
-func (s *Scanr) SYNscan(ports []uint16) error {
+func (s *Scanr) SYNscan(dstPorts []uint16) error {
 
+	srcPort := layers.TCPPort(randomPort())
 	hwaddr, err := s.getHwAddr()
 	if err != nil {
 		return err
@@ -77,8 +85,8 @@ func (s *Scanr) SYNscan(ports []uint16) error {
 		Flags:    0x02,
 	}
 	tcp := layers.TCP{
-		SrcPort: 54777,
-		DstPort: layers.TCPPort(ports[0]),
+		SrcPort: srcPort,
+		DstPort: layers.TCPPort(dstPorts[0]),
 		SYN:     true,
 		Window:  65535,
 	}
@@ -92,13 +100,13 @@ func (s *Scanr) SYNscan(ports []uint16) error {
 
 	i := 0
 	for {
-		if len(report) == len(ports) {
+		if len(report) == len(dstPorts) {
 			//log.Println("Scan finished.")
 			return nil
 		}
 		// Send one packet per iteration
-		if i <= len(ports)-1 {
-			tcp.DstPort = layers.TCPPort(ports[i])
+		if i <= len(dstPorts)-1 {
+			tcp.DstPort = layers.TCPPort(dstPorts[i])
 			start = time.Now()
 			if err := s.send(&eth, &ip4, &tcp); err != nil {
 				log.Printf("error sending to port %v: %v", tcp.DstPort, err)
@@ -132,7 +140,7 @@ func (s *Scanr) SYNscan(ports []uint16) error {
 			// We panic here because this is guaranteed to never
 			// happen.
 			panic("tcp layer is not tcp layer :-/")
-		} else if tcp.DstPort != 54777 {
+		} else if tcp.DstPort != srcPort {
 			// log.Printf("dst port %v does not match", tcp.DstPort)
 		} else if tcp.RST {
 			if _, in := report[tcp.SrcPort]; !in {
@@ -203,4 +211,9 @@ func (s *Scanr) getHwAddr() (net.HardwareAddr, error) {
 			}
 		}
 	}
+}
+
+// Random port
+func randomPort() uint16 {
+	return uint16(rand.Intn(max-min) + min)
 }

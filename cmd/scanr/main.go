@@ -5,14 +5,17 @@ import (
 	"fmt"
 	"github.com/dvdtoth/scanr/internal/scanr"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 
 	iface, ip, ports := parseCmd()
 	s, err := scanr.NewScanr(iface, ip)
