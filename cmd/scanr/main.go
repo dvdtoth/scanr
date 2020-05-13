@@ -63,7 +63,7 @@ func parseCmd() (iface *net.Interface, ip net.IP, ports []uint16) {
 		}
 		sort.Slice(portRange, func(i, j int) bool { return portRange[i] < portRange[j] })
 
-		for i := portRange[0]; i < portRange[1]; i++ {
+		for i := portRange[0]; i <= portRange[1]; i++ {
 			ports = append(ports, uint16(i))
 		}
 	} else if strings.Count(*targetPorts, ",") > 0 {
