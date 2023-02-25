@@ -6,5 +6,5 @@ replace github.com/google/gopacket => github.com/dvdtoth/gopacket v1.1.18-0.2020
 
 require (
 	github.com/google/gopacket v1.1.17
-	golang.org/x/net v0.0.0-20200506145744-7e3656a0809f
+	golang.org/x/net v0.7.0
 )
